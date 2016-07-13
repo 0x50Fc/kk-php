@@ -22,7 +22,15 @@ class App extends Object implements IApp {
 			$f = realpath($path.'/app.json');
 			
 			if(file_exists($f)) {
-				$cfg = json_decode(file_get_contents($f));
+				
+				$v = file_get_contents($f);
+				$cfg = json_decode($v);
+					
+				if($cfg === null) {
+					echo "config fail : {$f}";
+					echo $v;
+				}
+					
 				foreach($cfg as $key=>$value) {
 					if($key == 'libs') {
 						foreach($value as $p) {
@@ -92,7 +100,13 @@ class App extends Object implements IApp {
 		
 		if(file_exists($f)) {
 			
-			$cfg = json_decode(file_get_contents($f));
+			$v = file_get_contents($f);
+			$cfg = json_decode($v);
+			
+			if($cfg === null) {
+				echo "config fail : {$f}";
+				echo $v;
+			}
 			
 			$namespace = \kk\v($cfg, 'namespace','');
 			
@@ -119,9 +133,11 @@ class App extends Object implements IApp {
 					
 					if(($name = \kk\v($srv,'class'))) {
 						
-						$service = new $this->loadClass($path, $namespace, $name);
+						$cls = $this->loadClass($path, $namespace, $name);
 						
-						if(($vv = \kk\v($cfg,'object'))) {
+						$service = new $cls();
+						
+						if(($vv = \kk\v($srv,'object'))) {
 							foreach($vv as $key=>$value) {
 								$service->set($key,$value);
 							}
@@ -129,7 +145,7 @@ class App extends Object implements IApp {
 						
 						$this->addService($service);
 						
-						if(($vv = \kk\v($cfg,'taskTypes'))) {
+						if(($vv = \kk\v($srv,'taskTypes'))) {
 							foreach($vv as $taskType) {
 								$this->addTaskType($this->loadClass($path, $namespace, $taskType));
 							}
@@ -192,17 +208,13 @@ class App extends Object implements IApp {
 		if($c > 0) {
 			
 			$service = $this->_services[$c - 1];
-			$srvs;
 			
 			if(isset($this->_taskTypes->$taskType)) {
-				$srvs = $this->_taskTypes->$taskType;
+				array_push($this->_taskTypes->$taskType,$service);
 			}
 			else {
-				$srvs = array();
-				$this->_taskTypes->$taskType = $srvs;
+				$this->_taskTypes->$taskType = array($service);
 			}
-			
-			$srvs[] = $service;
 			
 		}
 		else {
@@ -216,7 +228,7 @@ class App extends Object implements IApp {
 	 */
 	public function handle($task) {
 		
-		$taskType = get_class($task);
+		$taskType = '\\'.get_class($task);
 		
 		if(isset($this->_taskTypes->$taskType)) {
 			
@@ -230,19 +242,4 @@ class App extends Object implements IApp {
 		
 	}
 
-	private static $_apps = new \stdClass();
-	
-	public static function load($path) {
-	
-		if(isset(App::$_apps->$path)) {
-			return App::$_apps->$path;
-		}
-	
-		$app = new App($path);
-	
-		App::$_apps->$path = $app;
-	
-		return $app;
-	}
-	
 }

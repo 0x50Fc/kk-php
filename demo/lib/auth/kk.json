@@ -1,0 +1,11 @@
+
+{
+	"namespace":"\\kk\\auth",
+	"title":"授权服务",
+	"services":[
+	     {
+	    	 "class":"AuthService",
+	    	 "taskTypes":["tasks\\AuthTask","tasks\\AuthSetTask","tasks\\AuthRemoveTask"]
+	     }
+	]
+}

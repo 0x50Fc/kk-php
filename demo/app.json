@@ -1,0 +1,6 @@
+
+{
+	"title":"演示",
+	"version":"1.0.0",
+	"libs":["lib/auth"]
+}
