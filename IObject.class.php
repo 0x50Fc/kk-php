@@ -20,6 +20,6 @@ interface IObject {
 	 * @param string $key
 	 * @param any $value
 	 */
-	public function set($key,$value);
+	public function set($key,&$value);
 	
 }

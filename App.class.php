@@ -24,7 +24,7 @@ class App extends Object implements IApp {
 			if(file_exists($f)) {
 				$cfg = json_decode(file_get_contents($f));
 				foreach($cfg as $key=>$value) {
-					if($key == 'plugins') {
+					if($key == 'libs') {
 						foreach($value as $p) {
 							$this->load($path . '/' . $p);
 						}
@@ -58,7 +58,7 @@ class App extends Object implements IApp {
 			}
 		}
 		
-		$className = $namespace . $name;
+		$className = $namespace .'\\'. $name;
 		
 		if(class_exists($className)) {
 			return $className;
@@ -94,7 +94,7 @@ class App extends Object implements IApp {
 			
 			$cfg = json_decode(file_get_contents($f));
 			
-			$namespace = \kk\v($cfg, 'namespace','\\');
+			$namespace = \kk\v($cfg, 'namespace','');
 			
 			$plugin = false;
 			
@@ -228,6 +228,21 @@ class App extends Object implements IApp {
 			}
 		}
 		
+	}
+
+	private static $_apps = new \stdClass();
+	
+	public static function load($path) {
+	
+		if(isset(App::$_apps->$path)) {
+			return App::$_apps->$path;
+		}
+	
+		$app = new App($path);
+	
+		App::$_apps->$path = $app;
+	
+		return $app;
 	}
 	
 }

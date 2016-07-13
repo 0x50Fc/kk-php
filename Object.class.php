@@ -13,7 +13,7 @@ class Object implements IObject {
 		return isset($this->$key) ? $this->$key : null;
 	}
 	
-	public function set($key,$value) {
+	public function set($key,&$value) {
 		$this->$key = $value;
 	}
 	
