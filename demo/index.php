@@ -1,7 +1,9 @@
 <?php 
 
-require_once '../kk.php';
+require_once '../kk/kk.php';
 
-$app = new \kk\App('.');
+$app = new \kk\App(dirname(__FILE__));
 
-$app->handle(new \kk\auth\tasks\AuthTask());
+\kk\open($app);
+
+

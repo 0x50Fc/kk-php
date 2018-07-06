@@ -7,7 +7,7 @@ namespace kk;
  * @author zhanghailong
  *
  */
-interface IService extends IObject {
+interface IService extends IVObject {
 
 	/**
 	 * 处理任务

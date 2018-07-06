@@ -1,5 +1,4 @@
 <?php
-
 namespace kk;
 
 /**
@@ -7,6 +6,6 @@ namespace kk;
  * @author zhanghailong
  *
  */
-interface IPlugin extends IObject {
-	
+class Plugin extends VObject implements IPlugin {
+    
 }

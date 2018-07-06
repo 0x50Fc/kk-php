@@ -15,7 +15,7 @@ class Plot {
 		return $this;
 	}
 	
-	private 
+ 
 	public function on($name,$plot) {
 		
 	}

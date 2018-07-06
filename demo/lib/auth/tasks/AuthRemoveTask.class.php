@@ -7,5 +7,5 @@ namespace kk\auth\tasks;
  *
  */
 class AuthRemoveTask extends \kk\Task {
-	
+    
 }

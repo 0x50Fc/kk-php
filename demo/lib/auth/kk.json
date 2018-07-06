@@ -1,11 +1,32 @@
-
 {
-	"namespace":"\\kk\\auth",
-	"title":"授权服务",
-	"services":[
-	     {
-	    	 "class":"AuthService",
-	    	 "taskTypes":["tasks\\AuthTask","tasks\\AuthSetTask","tasks\\AuthRemoveTask"]
-	     }
+	"namespace": "\\kk\\auth",
+	"title": "授权服务",
+	"name": "auth",
+	"services": [
+		{
+			"class": "AuthService",
+			"taskTypes": [
+				"tasks\\AuthTask",
+				"tasks\\AuthSetTask",
+				"tasks\\AuthRemoveTask"
+			]
+		}
+	],
+	"tasks": [
+		{
+			"class": "tasks\\AuthTask",
+			"name": "get",
+			"title": "获取授权"
+		},
+		{
+			"class": "tasks\\AuthSetTask",
+			"name": "set",
+			"title": "修改授权"
+		},
+		{
+			"class": "tasks\\AuthRemoveTask",
+			"name": "remove",
+			"title": "删除授权"
+		}
 	]
 }

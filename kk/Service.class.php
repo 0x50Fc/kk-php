@@ -6,7 +6,7 @@ namespace kk;
  * @author zhanghailong
  *
  */
-class Service extends Object implements ITask {
+class Service extends VObject implements IService {
 
 	private $_plugin;
 	

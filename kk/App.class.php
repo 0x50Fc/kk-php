@@ -6,16 +6,20 @@ namespace kk;
  * @author zhanghailong
  *
  */
-class App extends Object implements IApp {
+class App extends VObject implements IApp {
 	
 	private $_plugins;
 	private $_services;
 	private $_taskTypes;
+	private $_tasks;
+	private $_tasksWithName;
 	
 	public function __construct($path=false){
 		$this->_plugins = array();
 		$this->_services = array();
 		$this->_taskTypes = new \stdClass();
+		$this->_tasks = array();
+		$this->_tasksWithName = new \kk\VObject();
 		
 		if($path !== false) {
 			
@@ -102,7 +106,7 @@ class App extends Object implements IApp {
 			
 			$v = file_get_contents($f);
 			$cfg = json_decode($v);
-			
+
 			if($cfg === null) {
 				echo "config fail : {$f}";
 				echo $v;
@@ -118,6 +122,12 @@ class App extends Object implements IApp {
 			else {
 				$plugin = new \kk\Plugin();
 			}
+
+			$name = basename($path);
+			$name = \kk\v($cfg, 'name',$name);
+
+			$plugin->set('name',$name);
+			$plugin->set('namespace',$namespace);
 			
 			if(($v = \kk\v($cfg,'object'))) {
 				foreach($v as $key=>$value) {
@@ -154,6 +164,15 @@ class App extends Object implements IApp {
 					
 				}
 			}
+
+			if(($v = \kk\v($cfg,'tasks'))) {
+				
+				foreach($v as $task) {
+					
+					$this->addTask($plugin,$task);
+					
+				}
+			}
 			
 		}
 		else {
@@ -169,6 +188,51 @@ class App extends Object implements IApp {
 		$this->_plugins[] = $plugin;
 	}
 	
+	/**
+	 * 获取公开任务
+	 */
+	public function tasks() {
+		return $this->_tasks;
+	}
+
+	public function newTask($name,&$inputData) {
+		$task = $this->_tasksWithName->get($name);
+		if($task) {
+			$class = $task->get("class");
+			if($class) {
+				$task = new $class();
+				if($inputData) {
+					foreach($inputData as $key=>$value) {
+						$task->set($key,$value);
+					}
+				}
+				return $task;
+			}
+		}
+		return false;
+	}
+
+	public function addTask($plugin,$item) {
+
+		$task = new \kk\VObject();
+
+		foreach($item as $key=>$value){
+			$task->set($key,$value);
+		}
+
+		$class = $plugin->get("namespace")."\\".\kk\v($item,'class');
+
+		$task->set("class",$class);
+
+		$name = $plugin->get("name")."/".\kk\v($item,'name');
+		$task->set("name",$name);
+
+		$this->_tasks[] = $task;
+
+		$this->_tasksWithName->set($name,$task);
+
+	}
+
 	/**
 	 * 获取插件
 	 * @param class $class	插件类
@@ -220,8 +284,9 @@ class App extends Object implements IApp {
 		else {
 			throw new \Exception("Not Found Service");
 		}
+
 	}
-	
+
 	/**
 	 * 处理任务
 	 * @param \kk\ITask $task
@@ -240,6 +305,82 @@ class App extends Object implements IApp {
 			}
 		}
 		
+	}
+
+	/**
+	 * 处理开放接口
+	 */
+	public function open() {
+
+		$app = $this;
+		
+		$output = new \stdClass();
+
+		if(isset($_GET["path"])) {
+			
+			$path = $_GET["path"];
+
+			if($path == '_raml') {
+
+				$items = array();
+				
+				foreach($app->tasks() as $task) {
+
+					$items[] = $task;
+
+				}
+				
+				$output->items = $items;
+
+			} else if($path) {
+
+				$inputData = array();
+
+				if($_GET) {
+					foreach($_GET as $key=>$value) {
+						$inputData[$key] = $value;
+					}
+				}
+
+				if($_POST) {
+					foreach($_POST as $key=>$value) {
+						$inputData[$key] = $value;
+					}
+				}
+
+				$task = $app->newTask($path,$inputData);
+
+				if($task) {
+
+					try {
+						$app->handle($task);
+						$output->data = $task->getResult();
+						$output->errno = 200;
+					}
+					catch(\Exception $ex) {
+						$output->errno = $ex->getCode();
+						$output->errmsg = $ex->getMessage();
+					}
+					
+
+				} else {
+					$output->errno = '404';
+					$output->errmsg = "Not Found Task";
+				}
+
+			} else {
+				$output->errno = '404';
+				$output->errmsg = "Not Found Task";
+			}
+
+		} else {
+			$output->errno = '404';
+			$output->errmsg = "Not Found Path";
+		}
+
+		header("Content-Type: application/json; charset=utf-8");
+
+		echo json_encode($output);
 	}
 
 }

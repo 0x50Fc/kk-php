@@ -7,13 +7,13 @@ namespace kk;
  * @author zhanghailong
  *
  */
-class Object implements IObject {
+class VObject implements IVObject {
 	
 	public function get($key) {
 		return isset($this->$key) ? $this->$key : null;
 	}
 	
-	public function set($key,&$value) {
+	public function set($key,$value) {
 		$this->$key = $value;
 	}
 	

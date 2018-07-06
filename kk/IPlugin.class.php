@@ -3,10 +3,11 @@
 namespace kk;
 
 /**
- * 任务
+ * 插件
  * @author zhanghailong
  *
  */
-interface ITask extends IObject {
-	
+interface IPlugin extends IVObject {
+    
+
 }
